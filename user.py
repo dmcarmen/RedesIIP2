@@ -5,7 +5,7 @@ from Crypto.PublicKey import RSA
 headers = {'Authorization': "Bearer " + token}
 url = 'https://vega.ii.uam.es:8080/api/users/'
 
-def create_id(nombre, email, alias):
+def create_id(nombre, email):
     
     # Creamos el par de claves
     key = RSA.generate(2048)
@@ -14,7 +14,7 @@ def create_id(nombre, email, alias):
     print("Generando par de claves RSA de 2048 bits...OK")
 
     url += 'register'
-    args = {'nombre': nombre, 'email': email, 'alias': alias, 'publicKey': publicKey}
+    args = {'nombre': nombre, 'email': email, 'publicKey': publicKey}
     
     try:
         r = requests.post(url, headers = headers, json = args)
