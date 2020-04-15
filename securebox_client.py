@@ -1,13 +1,19 @@
-import Crypto
+from Cryptodome.Signature import pkcs1_15
+from Cryptodome.Hash import SHA256
+from Cryptodome.PublicKey import RSA
+from Cryptodome.Random import get_random_bytes
+from Cryptodome.Cipher import AES
+from Cryptodome.Util.Padding import pad
+from Cryptodome.Cipher import PKCS1_OAEP
 #result = json.dumps({'iv':iv, 'ciphertext':ct})
 #TODO AES.CBC puede dar excepcion?
 
 def encrypt(mensaje, clave_pub_r):
     # Cifrado simétrico: AES con modo de encadenamiento CBC,
     # con IV de 16 bytes, y longitud de clave de 256 bits.
-    # Generamos una clave de 256 bits
+    # Generamos una clave de 256 bits = 32 bytes
     iv = get_random_bytes(16)
-    clave_s = get_random_bytes(256)
+    clave_s = get_random_bytes(32)
     cipher = AES.new(clave_s, AES.MODE_CBC, iv)
     # El mensaje tiene que ser multiplo del tamanio del bloque
     # (16 en AES) asi que añadimos padding
@@ -54,7 +60,7 @@ def check_sign_and_decrypt(mensaje, clave_pub_e, clave_priv_r):
         mensaje_descifrado = cipher.decrypt(mensaje[16+clave_priv_r[1]:]) #TODO_1
 
         firma_digital = mensaje_descifrado[:clave_pub_e[1]] #TODO tan larga como modulo rsa,es decir, n
-        mensaje_original = mensaje_descifrado[]
+        mensaje_original = mensaje_descifrado[clave_pub_e[1]:]
 
         # Hacemos hash256 del mensaje
         hash = SHA256.new(mensaje_original)
@@ -64,3 +70,15 @@ def check_sign_and_decrypt(mensaje, clave_pub_e, clave_priv_r):
 
     except(ValueError, TypeError):
         return None
+
+new_key = RSA.generate(2048)
+public_key = new_key.publickey()
+private_key = new_key
+clave_pub_e=public_key
+clave_priv_e=private_key
+clave_pub_r=public_key
+clave_priv_r=private_key
+file= open("Prueba.txt","r")
+mensaje=file.read()
+encriptado= enc_sign(mensaje.encode("utf-8"),clave_priv_e ,clave_pub_r)
+check_sign_and_decrypt(encriptado,clave_pub_e,clave_priv_r)
