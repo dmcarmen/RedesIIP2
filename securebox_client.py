@@ -3,7 +3,7 @@ from Cryptodome.Hash import SHA256
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Random import get_random_bytes
 from Cryptodome.Cipher import AES
-from Cryptodome.Util.Padding import pad
+from Cryptodome.Util.Padding import pad, unpad
 from Cryptodome.Cipher import PKCS1_OAEP
 #result = json.dumps({'iv':iv, 'ciphertext':ct})
 #TODO AES.CBC puede dar excepcion?
@@ -47,29 +47,26 @@ def enc_sign(mensaje, clave_priv_e, clave_pub_r):
     return mensaje_enc_sign
 
 def check_sign_and_decrypt(mensaje, clave_pub_e, clave_priv_r):
-    #TODO se coge la parte del mensaje que corresponde?
     iv = mensaje[0:16]
-    sobre_digital = mensaje[16:16+clave_priv_r[1]] #TODO_1 tan grande como n
-    try:
-        # Obtenemos el sobre con OAEP
-        # La clave es la privada del receptor
-        cipher = PKCS1_OAEP.new(clave_priv_r)
-        clave_s = cipher.decrypt(sobre_digital)
+    sobre_digital = mensaje[16:16+256]
 
-        cipher = AES.new(clave_s, AES.MODE_CBC, iv)
-        mensaje_descifrado = cipher.decrypt(mensaje[16+clave_priv_r[1]:]) #TODO_1
+    # Obtenemos el sobre con OAEP
+    # La clave es la privada del receptor
+    cipher = PKCS1_OAEP.new(clave_priv_r)
+    clave_s = cipher.decrypt(sobre_digital)
 
-        firma_digital = mensaje_descifrado[:clave_pub_e[1]] #TODO tan larga como modulo rsa,es decir, n
-        mensaje_original = mensaje_descifrado[clave_pub_e[1]:]
+    cipher = AES.new(clave_s, AES.MODE_CBC, iv)
+    mensaje_descifrado = unpad(cipher.decrypt(mensaje[16+256:]), AES.block_size)
+    firma_digital = mensaje_descifrado[:256]
+    mensaje_original = mensaje_descifrado[256:]
 
-        # Hacemos hash256 del mensaje
-        hash = SHA256.new(mensaje_original)
-        #Comprobamos la firma_digital con el hash
-        pkcs1_15.new(clave_pub_e).verify(hash, firma_digital)
-        return mensaje_original
+    # Hacemos hash256 del mensaje
+    hash = SHA256.new(mensaje_original)
 
-    except(ValueError, TypeError):
-        return None
+    #Comprobamos la firma_digital con el hash
+    pkcs1_15.new(clave_pub_e).verify(hash, firma_digital)
+    return mensaje_original
+
 
 new_key = RSA.generate(2048)
 public_key = new_key.publickey()
@@ -81,4 +78,4 @@ clave_priv_r=private_key
 file= open("Prueba.txt","r")
 mensaje=file.read()
 encriptado= enc_sign(mensaje.encode("utf-8"),clave_priv_e ,clave_pub_r)
-check_sign_and_decrypt(encriptado,clave_pub_e,clave_priv_r)
+print(check_sign_and_decrypt(encriptado,clave_pub_e,clave_priv_r).decode("utf-8"))
