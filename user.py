@@ -75,6 +75,24 @@ def delete_id(userID):
     else:
         u.error(r)
 
+def get_public_key(userID):
+    global urlIni, headers
+    url = urlIni + 'getPublicKey'
+    args = {'userID': userID}
+    print("Solicitando clave de la identidad #{}".format(userID))
+
+    try:
+        r = requests.post(url, headers = headers, json = args)
+    except requests.ConnectionError:
+        print("Error de conexion")
+        return
+    if r.status_code == requests.codes.ok:
+        print("Clave publica conseguida")
+        return r.json().get('publicKey')
+    else:
+        u.error(r)
+        
+
 def prueba():
     create_id("Carmen", "carmen.diezmenendez@estudiante.uam.es")
     search_id("Carmen")
