@@ -4,17 +4,32 @@ import utils as u
 u.config_ini()
 headers = {'Authorization': "Bearer " + u.token}
 urlIni = 'https://tfg.eps.uam.es:8080/api/files/'
+path_archivos = "Archivos/"
 
-#TODO como guardamos contraseñas
-#TODO crear otro fichero al encriptar
-def upload(dest_id, fichero):
+def upload(dest_id, file_path):
+    f = open(file_path, "rb")
+    mensaje = f.read()
+    f.close()
+    file_name = os.path.basename(file_path)
+    path_archivo = path_archivos+file_name
+
     print("Solicitando envio de fichero a SecureBox")
-    #TODO ver si enc_sign(mensaje, clave_priv_e, clave_pub_r) o de otra forma
-    fichero_enc_sign = enc_sign(fichero, clave_pub_r)
-    if fichero_enc_sign is None:
+    mensaje_sign = sign(mensaje)
+    if sign is None:
         return
 
-    #TODO ufile=@/home/  / .py
+    print("Recuperando clave pública de ID {}...".format(dest_id), end="")
+    clave_pub_r = get_public_key(dest_id)
+    print("OK")
+
+    mensaje_enc_sign = encrypt(mensaje, clave_pub_r)
+
+    # Guardamos el fichero encriptado y firmado
+    f = open(path_archivo,"wb")
+    f.write(mensaje_enc_sign)
+    f.close()
+
+    #TODO ufile=@/home/  / .py con path_archivo
     print("Subiendo fichero a servidor...", end="")
     url = urlIni + "upload"
     try:
@@ -47,10 +62,23 @@ def download(file_id, source_id):
         print("OK")
         print("-> {} bytes descargados correctamente".format(len(r)))
 
-        #TODO separar esta funcion en dos para decrypt, obtener clave y check_sign
-        #check_sign_and_decrypt(mensaje, clave_pub_e, clave_priv_r)
-        if check_sign_and_decrypt(mensaje, clave_pub_e) is None:
+        print("-> Descifrando fichero...", end="")
+        mensaje_descifrado = decrypt(r)
+        if mensaje_descifrado is None:
             return
+        print("OK")
+
+        print("-> Recuperando clave pública de ID {}...".format(source_id))
+        clave_pub_e = get_public_key(source_id)
+        print("OK")
+
+        print("-> Verificando firma...", end="")
+        mensaje_original = check_sign(mensaje_descifrado, clave_pub_e)
+        if mensaje_original is None:
+            return
+        print("OK")
+
+        #TODO guardar el fichero
 
         print("Fichero descargado y verificado correctamente")
     else:
