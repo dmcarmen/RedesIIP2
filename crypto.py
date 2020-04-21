@@ -48,7 +48,7 @@ def enc_sign(mensaje, clave_pub_r):
     if firma_digital is None:
         print("Error al firmar")
         return None
-        
+
     mensaje_enc_sign = encrypt(firma_digital + mensaje, clave_pub_r)
 
     return mensaje_enc_sign
@@ -102,4 +102,4 @@ def prueba_crypto():
     mensaje_descifrado= decrypt(encriptado)
     print(check_sign(mensaje_descifrado,clave_pub_e).decode("utf-8"))
 
-prueba_crypto()
+#prueba_crypto()

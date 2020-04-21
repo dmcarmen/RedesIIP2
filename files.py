@@ -30,6 +30,10 @@ def upload(dest_id, file_path):
     f.close()
     file_name = os.path.basename(file_path)
     path_archivo = os.path.abspath(path_archivos + file_name)
+    # Si no existe path_archivos creamos la carpeta
+    basedir = os.path.dirname(path_archivo)
+    if not os.path.exists(basedir):
+        os.makedirs(basedir)
 
     # Conseguimos la clave publica de dest_id
     print("Recuperando clave pública de ID {}...".format(dest_id), end="")
@@ -48,11 +52,12 @@ def upload(dest_id, file_path):
     # Guardamos el fichero encriptado y firmado
     f = open(path_archivo, "wb")
     f.write(mensaje_enc_sign)
+    f.close()
 
     # Enviamos la peticion a la API
     print("Subiendo fichero a servidor...", end="")
     url = urlIni + "upload"
-    files = {'ufile': f}
+    files = {'ufile': open(path_archivo, "rb")}
     try:
         r = requests.post(url, headers=headers, files=files)
     except requests.ConnectionError:
@@ -63,9 +68,9 @@ def upload(dest_id, file_path):
     if r.status_code == requests.codes.ok:
         print("OK")
         answers = r.json()
-        files_id = answers.get('files_id')
+        file_id = answers.get('file_id')
         file_size = answers.get('file_size') #TODO que hacer con file_size?
-        print("Subida realizada correctamente, ID del fichero: {}".format(files_id))
+        print("Subida realizada correctamente, ID del fichero: {}".format(file_id))
         # Borramos el archivo auxiliar
         #os.remove(path_archivo)
     else:
@@ -98,10 +103,10 @@ def download(file_id, source_id):
     # Si es correcto recuperamos el mensaje
     if r.status_code == requests.codes.ok:
         print("OK")
-        print("-> {} bytes descargados correctamente".format(len(r)))
+        print("-> {} bytes descargados correctamente".format(r.headers.get('Content-Length')))
 
         print("-> Descifrando fichero...", end="")
-        mensaje_descifrado = crypto.decrypt(r)
+        mensaje_descifrado = crypto.decrypt(r.content)
         if mensaje_descifrado is None:
             return
         print("OK")
@@ -179,6 +184,7 @@ def list_files(userID):
         answers = r.json()
         files_list = answers.get('files_list')
         num_files = answers.get('num_files')
+        #TODO formato
         print("{} ficheros encontrados:".format(num_files))
         i=0
         for file in files_list:
@@ -189,6 +195,11 @@ def list_files(userID):
         u.error(r)
 
 def prueba_files():
-    upload('383336', '/home/kali/Desktop/practica2/Prueba.txt')
+    #upload('383336', '/home/kali/Desktop/practica2/Prueba.txt')
+    delete('B1fAc2eF')
+    list_files('383336')
+    download('De29fbC4', '383336')
+    #download('50Be7ED8', '383336')
+    #list_files('383336')
 
 prueba_files()
