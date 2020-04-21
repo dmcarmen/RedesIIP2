@@ -1,7 +1,7 @@
 import argparse
 import users
 #import files
-#import crypto
+import crypto
 
 #TODO control de errores, specially los de coger datos como get publicKey
 
@@ -66,24 +66,22 @@ if __name__ == "__main__":
         if args.dest_id:
             publicKey = user.get_public_key(args.dest_id) 
             file = open(args.encrypt, "r")
-            mensaje = file.read().encode("utf-8")
-            #crypto.encrypt(mensaje, publicKey)
+            mensaje = file.read()
+            crypto.encrypt(mensaje, publicKey)
         else:
             print("--encrypt necesita --dest_id")
     
     elif args.sign:
         file = open(args.sign, 'r')
-        mensaje = file.read().encode('utf-8')
-        #TODO leer la privateKey donde este
-        #crypto.sign(mensaje, privateKey)
+        mensaje = file.read()
+        crypto.sign(mensaje)
 
     elif args.enc_sign:
         if args.dest_id:
-            #TODO leer la privateKey donde este
             file = open(args.sign, 'r')
-            mensaje = file.read().encode('utf-8')
+            mensaje = file.read()
             publicKey = user.get_public_key(args.dest_id)
-            #crypto.enc_sign(mensaje, privateKey, publicKey)
+            crypto.enc_sign(mensaje, publicKey)
         else:
             print("--enc_sign necesita --dest_id")
 
