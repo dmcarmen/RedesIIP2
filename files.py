@@ -1,6 +1,8 @@
 import requests
 import utils as u
 import os
+import users
+import crypto
 
 u.config_ini()
 headers = {'Authorization': "Bearer " + u.token}
@@ -31,14 +33,14 @@ def upload(dest_id, file_path):
 
     # Conseguimos la clave publica de dest_id
     print("Recuperando clave pública de ID {}...".format(dest_id), end="")
-    clave_pub_r = get_public_key(dest_id)
+    clave_pub_r = users.get_public_key(dest_id)
     if clave_pub_r is None:
         return
     print("OK")
 
     # Firmamos y ciframos el fichero
     print("Firmando y cifrando el fichero...", end="")
-    mensaje_enc_sign = enc_sign(mensaje, clave_pub_r)
+    mensaje_enc_sign = crypto.enc_sign(mensaje, clave_pub_r)
     if mensaje_enc_sign is None:
         return
     print("OK")
@@ -99,18 +101,18 @@ def download(file_id, source_id):
         print("-> {} bytes descargados correctamente".format(len(r)))
 
         print("-> Descifrando fichero...", end="")
-        mensaje_descifrado = decrypt(r)
+        mensaje_descifrado = crypto.decrypt(r)
         if mensaje_descifrado is None:
             return
         print("OK")
 
         # Recuperamos la clave publica del usuario y verificamos la firma
         print("-> Recuperando clave pública de ID {}...".format(source_id))
-        clave_pub_e = get_public_key(source_id)
+        clave_pub_e = users.get_public_key(source_id)
         print("OK")
 
         print("-> Verificando firma...", end="")
-        mensaje_original = check_sign(mensaje_descifrado, clave_pub_e)
+        mensaje_original = crypto.check_sign(mensaje_descifrado, clave_pub_e)
         if mensaje_original is None:
             return
         print("OK")
