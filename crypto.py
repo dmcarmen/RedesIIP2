@@ -45,7 +45,10 @@ def sign(mensaje):
 
 def enc_sign(mensaje, clave_pub_r):
     firma_digital = sign(mensaje)
-
+    if firma_digital is None:
+        print("Error al firmar")
+        return None
+        
     mensaje_enc_sign = encrypt(firma_digital + mensaje, clave_pub_r)
 
     return mensaje_enc_sign
