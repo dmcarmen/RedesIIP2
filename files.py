@@ -185,3 +185,8 @@ def list_files(userID):
     else:
         print()
         u.error(r)
+
+def prueba_files():
+    upload('383336', '/home/kali/Desktop/practica2/Prueba.txt')
+
+prueba_files()
