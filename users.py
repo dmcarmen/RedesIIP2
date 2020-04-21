@@ -28,11 +28,11 @@ def create_id(nombre, email):
     url = urlIni + 'register'
     args = {'nombre': nombre, 'email': email, 'publicKey': publicKey}
     try:
-        r = requests.post(url, headers = headers, json = args) 
+        r = requests.post(url, headers = headers, json = args)
     except requests.ConnectionError:
         print("Error de conexion")
         return
-    
+
     # Si la peticion es correcta guardamos la clave privada del usuario e imprimimos su ID
     if r.status_code == requests.codes.ok:
         f = open("clave.pem", "wb")
@@ -44,12 +44,12 @@ def create_id(nombre, email):
     else:
         print()
         u.error(r)
-    
+
 
 def search_id(data_search):
     '''
         Nombre: search_id
-        Descripcion: Busca un usuario cuyo nombre o correo electronico contenga cadena en el repositorio 
+        Descripcion: Busca un usuario cuyo nombre o correo electronico contenga cadena en el repositorio
             de identidades de SecureBox, e imprime su ID.
             En caso de error lo imprime por pantalla y sale de la funcion.
         Argumentos:
@@ -57,7 +57,7 @@ def search_id(data_search):
         Retorno: Ninguno
     '''
     global urlIni, headers
-    
+
     # Enviamos la peticion a la API
     url = urlIni + 'search'
     args = {'data_search': data_search}
@@ -100,7 +100,7 @@ def delete_id(userID):
     except requests.ConnectionError:
         print("\nError de conexion")
         return
-    
+
     # Si la peticion es correcta imprimimos el ID eliminado
     if r.status_code == requests.codes.ok:
         print("OK")
@@ -115,7 +115,7 @@ def delete_id(userID):
 def get_public_key(userID):
     '''
         Nombre: get_public_key
-        Descripcion: Obtiene la clave pública de un usuario. 
+        Descripcion: Obtiene la clave pública de un usuario.
             En caso de error lo imprime por pantalla y sale de la funcion.
         Argumentos:
             -userID: ID a borrar.
@@ -135,12 +135,12 @@ def get_public_key(userID):
 
     if r.status_code == requests.codes.ok:
         print("OK")
-        return r.json().get('publicKey')
+        return RSA.import_key(r.json().get('publicKey'))
     else:
         print()
         u.error(r)
         return None
-        
+
 
 def prueba():
     create_id("Carmen", "carmen.diezmenendez@estudiante.uam.es")
@@ -148,4 +148,3 @@ def prueba():
     #delete_id(383336)
     #search_id("Carmen")
     delete_id(38333336)
-
