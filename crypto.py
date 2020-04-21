@@ -84,17 +84,19 @@ def check_sign(mensaje_descifrado, clave_pub_e):
     print("OK")
     return mensaje_original
 
+def prueba_crypto():
+    new_key = RSA.generate(2048)
+    f = open('clave.pem','wb')
+    f.write(new_key.export_key('PEM'))
+    f.close()
+    public_key = new_key.publickey()
+    private_key = new_key
+    clave_pub_e=public_key
+    clave_pub_r=public_key
+    file= open("Prueba.txt","rb")
+    mensaje=file.read()
+    encriptado=enc_sign(mensaje,clave_pub_r)
+    mensaje_descifrado= decrypt(encriptado)
+    print(check_sign(mensaje_descifrado,clave_pub_e).decode("utf-8"))
 
-new_key = RSA.generate(2048)
-f = open('clave.pem','wb')
-f.write(new_key.export_key('PEM'))
-f.close()
-public_key = new_key.publickey()
-private_key = new_key
-clave_pub_e=public_key
-clave_pub_r=public_key
-file= open("Prueba.txt","rb")
-mensaje=file.read()
-encriptado=enc_sign(mensaje,clave_pub_r)
-mensaje_descifrado= decrypt(encriptado)
-print(check_sign(mensaje_descifrado,clave_pub_e).decode("utf-8"))
+prueba_crypto()
