@@ -1,7 +1,7 @@
 import argparse
 import users
 #import files
-import crypto
+#import crypto
 
 #TODO control de errores, specially los de coger datos como get publicKey
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         nada()
         #files.list_files()
 
-    elif args.download: #TODO maybe logiquisimo ejemplos usan source_id? 
+    elif args.download: #TODO maybe logiquisimo ejemplos usan source_id?
         nada()
         #files.download(args.download)
 
@@ -64,24 +64,27 @@ if __name__ == "__main__":
 
     elif args.encrypt:
         if args.dest_id:
-            publicKey = user.get_public_key(args.dest_id) 
-            file = open(args.encrypt, "r")
-            mensaje = file.read()
-            crypto.encrypt(mensaje, publicKey)
+            publicKey = user.get_public_key(args.dest_id)
+            if publicKey is not None:
+                file = open(args.encrypt, "r")
+                mensaje = file.read()
+                #crypto.encrypt(mensaje, publicKey)
         else:
             print("--encrypt necesita --dest_id")
-    
+
     elif args.sign:
         file = open(args.sign, 'r')
         mensaje = file.read()
-        crypto.sign(mensaje)
+        #crypto.sign(mensaje)
 
     elif args.enc_sign:
         if args.dest_id:
             file = open(args.sign, 'r')
             mensaje = file.read()
             publicKey = user.get_public_key(args.dest_id)
-            crypto.enc_sign(mensaje, publicKey)
+            if publicKey is not None:
+                nada()
+                #crypto.enc_sign(mensaje, publicKey)
         else:
             print("--enc_sign necesita --dest_id")
 
