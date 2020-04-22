@@ -6,8 +6,9 @@ u.config_ini()
 headers = {'Authorization': "Bearer " + u.token}
 urlIni = 'https://tfg.eps.uam.es:8080/api/users/'
 
+
 def create_id(nombre, email):
-    '''
+    """
         Nombre: create_id
         Descripcion: Funcion que manda una peticion a la API para crear un usuario. Crea el par de claves RSA,
             guarda la privada y envía la publica a la API.
@@ -16,7 +17,7 @@ def create_id(nombre, email):
             -nombre: nombre del usuario a crear.
             -email: email del usuario.
         Retorno: Ninguno
-    '''
+    """
     global urlIni, headers
     # Creamos el par de claves
     print("Generando par de claves RSA de 2048 bits...", end="")
@@ -28,7 +29,7 @@ def create_id(nombre, email):
     url = urlIni + 'register'
     args = {'nombre': nombre, 'email': email, 'publicKey': publicKey}
     try:
-        r = requests.post(url, headers = headers, json = args)
+        r = requests.post(url, headers=headers, json=args)
     except requests.ConnectionError:
         print("Error de conexion")
         return
@@ -47,7 +48,7 @@ def create_id(nombre, email):
 
 
 def search_id(data_search):
-    '''
+    """
         Nombre: search_id
         Descripcion: Busca un usuario cuyo nombre o correo electronico contenga cadena en el repositorio
             de identidades de SecureBox, e imprime su ID.
@@ -55,7 +56,7 @@ def search_id(data_search):
         Argumentos:
             -data_search: cadena a buscar.
         Retorno: Ninguno
-    '''
+    """
     global urlIni, headers
 
     # Enviamos la peticion a la API
@@ -63,7 +64,7 @@ def search_id(data_search):
     args = {'data_search': data_search}
     print("Buscando usuario '" + data_search + "' en el servidor...", end="")
     try:
-        r = requests.post(url, headers = headers, json = args)
+        r = requests.post(url, headers=headers, json=args)
     except requests.ConnectionError:
         print("\nError de conexion")
         return
@@ -74,11 +75,12 @@ def search_id(data_search):
         print("{} usuarios encontrados:".format(len(answers)))
         i = 0
         for answer in answers:
-            print("[{}] {}, {}, ID: {}".format(i+1, answers[i]['nombre'], answers[i]['email'], answers[i]['userID']))
+            print("[{}] {}, {}, ID: {}".format(i + 1, answer['nombre'], answer['email'], answer['userID']))
             i += 1
     else:
         print()
         u.error(r)
+
 
 def delete_id(userID):
     '''
@@ -96,7 +98,7 @@ def delete_id(userID):
     args = {'userID': userID}
     print("Solicitando borrado de la identidad #{}...".format(userID), end="")
     try:
-        r = requests.post(url, headers = headers, json = args)
+        r = requests.post(url, headers=headers, json=args)
     except requests.ConnectionError:
         print("\nError de conexion")
         return
@@ -105,13 +107,14 @@ def delete_id(userID):
     if r.status_code == requests.codes.ok:
         print("OK")
         answer = r.json()
-        userID = answer.get('userID') #TODO poco logico maybe porque argumento pero meeh
+        userID = answer.get('userID')  # TODO poco logico maybe porque argumento pero meeh
         print("Identidad con ID#{} borrada correctamente".format(userID))
     else:
         print()
         u.error(r)
 
-#TODO añadir control de errores de esta funcion elsewhere
+
+# TODO añadir control de errores de esta funcion elsewhere
 def get_public_key(userID):
     '''
         Nombre: get_public_key
@@ -128,7 +131,7 @@ def get_public_key(userID):
     args = {'userID': userID}
     print("Solicitando clave de la identidad #{}".format(userID), end="")
     try:
-        r = requests.post(url, headers = headers, json = args)
+        r = requests.post(url, headers=headers, json=args)
     except requests.ConnectionError:
         print("\nError de conexion")
         return None
@@ -145,6 +148,7 @@ def get_public_key(userID):
 def prueba():
     create_id("Carmen", "carmen.diezmenendez@estudiante.uam.es")
     search_id("Carmen")
-    #delete_id(383336)
-    #search_id("Carmen")
+    # delete_id(383336)
+    # search_id("Carmen")
     delete_id(38333336)
+
