@@ -1,4 +1,5 @@
 import os
+import configparser
 
 # Variable global del token
 token = ""
@@ -8,18 +9,19 @@ def config_ini():
     """
         Nombre: config_ini
         Descripcion: Realiza la configuración inicial necesaria.
-            Lee de token.txt el token del usuario.
+            Lee de token.conf el token del usuario.
         Argumentos: Ninguno
         Retorno: Ninguno
     """
     global token
 
     # Leemos token.txt y lo guardamos en la variable global token
-    if os.stat("token.txt").st_size == 0:
-        print("Error: no hay token")
+    config = configparser.ConfigParser()
+    config.read('token.conf')
+    if 'token' in config['DEFAULT']:
+        token = config['DEFAULT']['token']
     else:
-        file = open("token.txt", "r")
-        token = file.read()[:-1]
+        print("Error: no hay token")
 
 
 # Guardamos el token
