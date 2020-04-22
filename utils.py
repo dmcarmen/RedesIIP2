@@ -1,30 +1,41 @@
 import os
 import configparser
 
-# Variable global del token
+# Variables globales
 token = ""
+path_archivos = ""
 
 
 def config_ini():
     """
         Nombre: config_ini
         Descripcion: Realiza la configuración inicial necesaria.
-            Lee de token.conf el token del usuario.
+            Lee de ini.conf el token del usuario y el path para guardar archivos.
         Argumentos: Ninguno
         Retorno: Ninguno
     """
-    global token
+    global token, path_archivos
 
     # Leemos token.txt y lo guardamos en la variable global token
     config = configparser.ConfigParser()
-    config.read('token.conf')
+    config.read('ini.conf')
     if 'token' in config['DEFAULT']:
         token = config['DEFAULT']['token']
     else:
-        print("Error: no hay token")
+        return
 
+    # Guardamos el path de archivos y si no ponemos uno por defecto
+    if 'path_archivos' in config['DEFAULT']:
+        path_archivos = config['DEFAULT']['path_archivos']
+    else:
+        path_archivos = "Archivos/"
 
-# Guardamos el token
+    # Si no existe path_archivos creamos la carpeta
+    basedir = os.path.dirname(path_archivos)
+    if not os.path.exists(basedir):
+        os.makedirs(basedir)
+
+# Guardamos el token y el path de archivos
 config_ini()
 
 def error(request):

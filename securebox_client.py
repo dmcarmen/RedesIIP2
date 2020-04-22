@@ -5,8 +5,7 @@ import crypto
 import utils as u
 import os
 
-path_archivos = "Archivos/"
-# TODO repasar prints y que a iris le funcione create_id
+# TODO que a iris le funcione create_id
 
 if __name__ == "__main__":
     # Si el token existe continuamos
@@ -86,51 +85,58 @@ if __name__ == "__main__":
         elif args.delete_file:
             files.delete(args.delete_file)
 
+        # Para encriptar pedimos la clave publica del destinatario, ciframos
+        # y guardamos el fichero encriptado en path_archivos
         elif args.encrypt:
             if args.dest_id:
                 publicKey = users.get_public_key(args.dest_id)
                 if publicKey is not None:
-                    file = open(args.encrypt, "rb")
-                    mensaje = file.read()
-                    mensaje_cifrado = crypto.encrypt(mensaje, publicKey)
+                    f = open(args.encrypt, "rb")
+                    mensaje_cifrado = crypto.encrypt(f.read(), publicKey)
+                    f.close()
                     if mensaje_cifrado is not None:
                         file_name = os.path.basename(args.encrypt)
-                        f = open(path_archivos + "enc_" + file_name, "wb")
+                        f = open(u.path_archivos + "enc_" + file_name, "wb")
                         f.write(mensaje_cifrado)
                         f.close()
             else:
                 print("--encrypt necesita --dest_id")
 
+        # Firmamos un fichero y la guardamos en path_archivos
         elif args.sign:
-            file = open(args.sign, 'rb')
-            mensaje = file.read()
-            mensaje_firmado = crypto.sign(mensaje)
+            f = open(args.sign, 'rb')
+            mensaje_firmado = crypto.sign(f.read())
+            f.close()
             if mensaje_firmado is not None:
                 file_name = os.path.basename(args.sign)
-                f = open(path_archivos + "sign_" + file_name, "wb")
+                f = open(u.path_archivos + "sign_" + file_name, "wb")
                 f.write(mensaje_firmado)
                 f.close()
 
+        # Encripta y frima un archivo para un destinatario y lo guarda en path_archivos
         elif args.enc_sign:
             if args.dest_id:
-                file = open(args.enc_sign, 'rb')
-                mensaje = file.read()
+                f = open(args.enc_sign, 'rb')
+                mensaje = f.read()
+                f.close()
                 publicKey = users.get_public_key(args.dest_id)
                 if publicKey is not None:
                     mensaje_enc_sign = crypto.enc_sign(mensaje, publicKey)
                     if mensaje_enc_sign is not None:
                         file_name = os.path.basename(args.enc_sign)
-                        f = open(path_archivos + "enc_sign_" + file_name, "wb")
+                        f = open(u.path_archivos + "enc_sign_" + file_name, "wb")
                         f.write(mensaje_enc_sign)
                         f.close()
             else:
                 print("--enc_sign necesita --dest_id")
 
+        # Desencripta y comprueba la firma de un fichero dado. Guarda el fichero
+        # dado en path_archivos
         elif args.dec_check:
             if args.source_id:
-                file = open(args.dec_check, 'rb')
-                mensaje = file.read()
-                file.close()
+                f = open(args.dec_check, 'rb')
+                mensaje = f.read()
+                f.close()
                 mensaje_descifrado = crypto.decrypt(mensaje)
                 publicKey = users.get_public_key(args.source_id)
                 if publicKey is not None:
@@ -141,7 +147,7 @@ if __name__ == "__main__":
                     else:
                         print("correcta")
                         file_name = os.path.basename(args.dec_check)
-                        f = open(path_archivos + "dec_check_" + file_name, "wb")
+                        f = open(u.path_archivos + "dec_check_" + file_name, "wb")
                         f.write(check)
                         f.close()
 
@@ -149,4 +155,6 @@ if __name__ == "__main__":
                 print("--dec_check necesita --source_id")
 
         else:
-            print("Introduce --help para ayuda con los comandos")
+            print("Introduce --help para ver los posibles comandos")
+    else:
+        print("No hay token.")

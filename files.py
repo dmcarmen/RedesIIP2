@@ -6,7 +6,6 @@ import crypto
 
 headers = {'Authorization': "Bearer " + u.token}
 urlIni = 'https://tfg.eps.uam.es:8080/api/files/'
-path_archivos = "Archivos/"
 
 
 def upload(file_path, dest_id):
@@ -29,11 +28,7 @@ def upload(file_path, dest_id):
     mensaje = f.read()
     f.close()
     file_name = os.path.basename(file_path)
-    path_archivo = os.path.abspath(path_archivos + file_name)
-    # Si no existe path_archivos creamos la carpeta
-    basedir = os.path.dirname(path_archivo)
-    if not os.path.exists(basedir):
-        os.makedirs(basedir)
+    path_archivo = os.path.abspath(u.path_archivos + file_name)
 
     # Conseguimos la clave publica de dest_id
     clave_pub_r = users.get_public_key(dest_id)
@@ -120,8 +115,9 @@ def download(file_id, source_id):
         nombre = (aux.split("=")[1]).replace('"', '')
 
         # Guardamos el fichero en path_archivos
-        f = open(path_archivos + nombre, 'wb')
+        f = open(u.path_archivos + nombre, 'wb')
         f.write(mensaje_original)
+        f.close()
 
         print("Fichero descargado y verificado correctamente")
     else:
