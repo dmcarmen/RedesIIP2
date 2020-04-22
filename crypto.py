@@ -6,9 +6,6 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad, unpad
 from Cryptodome.Cipher import PKCS1_OAEP
 
-
-# TODO AES.CBC puede dar excepcion?
-
 def encrypt(mensaje, clave_pub_r):
     """
         Nombre: encrypt
@@ -70,20 +67,31 @@ def enc_sign(mensaje, clave_pub_r):
         Nombre: enc_sign
         Descripcion: Funcion que firma y cifra un mensaje en bytes.
         Argumentos:
-            -mensaje:
-        Retorno:
+            -mensaje: mensaje a firmar y cifrar
+            -clave_pub_r: clave publica del receptor
+        Retorno: mensaje firmado y cifrado
     """
+    # Obtenemos la firma
     firma_digital = sign(mensaje)
     if firma_digital is None:
         print("Error al firmar")
         return None
 
+    # Ciframos la firma digital con el mensaje
     mensaje_enc_sign = encrypt(firma_digital + mensaje, clave_pub_r)
 
     return mensaje_enc_sign
 
 
 def decrypt(mensaje):
+    """
+        Nombre: decrypt
+        Descripcion: Funcion que descifra un mensaje.
+        Argumentos:
+            -mensaje: mensaje cifrado y firmado
+        Retorno: mensaje descifrado
+    """
+    # Obtenemos el vector de inicializacion y el sobre digital
     print("-> Descifrando fichero...", end="")
     iv = mensaje[0:16]
     sobre_digital = mensaje[16:16 + 256]
@@ -91,20 +99,28 @@ def decrypt(mensaje):
     # Obtenemos la clave privada del receptor
     f = open('clave.pem', 'r')
     clave_priv_r = RSA.import_key(f.read())
+    f.close()
 
     # Obtenemos el sobre con OAEP
     cipher = PKCS1_OAEP.new(clave_priv_r)
     clave_s = cipher.decrypt(sobre_digital)
 
+    # Desciframos y quitamos el pad
     cipher = AES.new(clave_s, AES.MODE_CBC, iv)
     mensaje_descifrado = unpad(cipher.decrypt(mensaje[16 + 256:]), AES.block_size)
 
-    f.close()
     print("OK")
     return mensaje_descifrado
 
 
 def check_sign(mensaje_descifrado, clave_pub_e):
+    """
+        Nombre: check_sign
+        Descripcion: Funcion que comprueba la firma y obtiene el mensaje original.
+        Argumentos:
+            -mensaje: mensaje firmado
+        Retorno: mensaje original
+    """
     print("-> Verificando firma...", end="")
 
     firma_digital = mensaje_descifrado[:256]
@@ -114,7 +130,10 @@ def check_sign(mensaje_descifrado, clave_pub_e):
     h = SHA256.new(mensaje_original)
 
     # Comprobamos la firma_digital con el hash
-    pkcs1_15.new(clave_pub_e).verify(h, firma_digital)
+    try:
+        pkcs1_15.new(clave_pub_e).verify(h, firma_digital)
+    except ValueError:
+        return None
     print("OK")
     return mensaje_original
 
@@ -122,15 +141,10 @@ def check_sign(mensaje_descifrado, clave_pub_e):
 def prueba_crypto():
     new_key = RSA.generate(2048)
     f = open('clave.pem', 'wb')
-    f.write(new_key.export_key('PEM'))
+    f.write(new_key.export_key())
     f.close()
     public_key = new_key.publickey()
-    clave_pub_e = public_key
-    clave_pub_r = public_key
-    file = open("Prueba.txt", "rb")
-    mensaje = file.read()
-    encriptado = enc_sign(mensaje, clave_pub_r)
+    encriptado = enc_sign(("Hola mundo").encode('utf-8'), public_key)
     mensaje_descifrado = decrypt(encriptado)
-    print(check_sign(mensaje_descifrado, clave_pub_e).decode("utf-8"))
+    print(check_sign(mensaje_descifrado, public_key).decode("utf-8"))
 
-# prueba_crypto()

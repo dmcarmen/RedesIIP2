@@ -70,10 +70,9 @@ def upload(dest_id, file_path):
         print("OK")
         answers = r.json()
         file_id = answers.get('file_id')
-        file_size = answers.get('file_size')  # TODO que hacer con file_size?
         print("Subida realizada correctamente, ID del fichero: {}".format(file_id))
         # Borramos el archivo auxiliar
-        # os.remove(path_archivo)
+        os.remove(path_archivo)
     else:
         print()
         u.error(r)
@@ -106,11 +105,9 @@ def download(file_id, source_id):
         print("OK")
         print("-> {} bytes descargados correctamente".format(r.headers.get('Content-Length')))
 
-        print("-> Descifrando fichero...", end="")
         mensaje_descifrado = crypto.decrypt(r.content)
         if mensaje_descifrado is None:
             return
-        print("OK")
 
         # Recuperamos la clave publica del usuario y verificamos la firma
         print("-> Recuperando clave pública de ID {}...".format(source_id))
@@ -120,11 +117,16 @@ def download(file_id, source_id):
         print("-> Verificando firma...", end="")
         mensaje_original = crypto.check_sign(mensaje_descifrado, clave_pub_e)
         if mensaje_original is None:
+            print("Error: firma incorrecta")
             return
         print("OK")
 
+        # Hallamos el nombre del fichero
+        aux = r.headers.get('content-disposition')
+        nombre = (aux.split("=")[1]).replace('"','')
+
         # Guardamos el fichero en path_archivos
-        f = open(path_archivos + r.headers.get('filename'), 'wb')
+        f = open(path_archivos + nombre, 'wb')
         f.write(mensaje_original)
 
         print("Fichero descargado y verificado correctamente")
@@ -199,10 +201,10 @@ def list_files(userID):
 
 
 def prueba_files():
-    # upload('383336', '/home/kali/Desktop/practica2/Prueba.txt')
-    # delete('B1fAc2eF')
+    #upload('383336', 'Prueba.txt')
+    #delete('De29fbC4')
     list_files('383336')
-    download('De29fbC4', '383336')
+    download('6edD0F29', '383336')
     # download('50Be7ED8', '383336')
     # list_files('383336')
 
