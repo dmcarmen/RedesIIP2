@@ -40,6 +40,7 @@ def upload(dest_id, file_path):
     print("Recuperando clave pública de ID {}...".format(dest_id), end="")
     clave_pub_r = users.get_public_key(dest_id)
     if clave_pub_r is None:
+        print("Error al obtener la clave publica")
         return
     print("OK")
 
@@ -112,18 +113,20 @@ def download(file_id, source_id):
         # Recuperamos la clave publica del usuario y verificamos la firma
         print("-> Recuperando clave pública de ID {}...".format(source_id))
         clave_pub_e = users.get_public_key(source_id)
+        if clave_pub_e is None:
+            print("Error al obtener la clave publica")
+            return
         print("OK")
 
         print("-> Verificando firma...", end="")
         mensaje_original = crypto.check_sign(mensaje_descifrado, clave_pub_e)
         if mensaje_original is None:
-            print("Error: firma incorrecta")
             return
         print("OK")
 
         # Hallamos el nombre del fichero
         aux = r.headers.get('content-disposition')
-        nombre = (aux.split("=")[1]).replace('"','')
+        nombre = (aux.split("=")[1]).replace('"', '')
 
         # Guardamos el fichero en path_archivos
         f = open(path_archivos + nombre, 'wb')
@@ -164,7 +167,7 @@ def delete(file_id):
         u.error(r)
 
 
-def list_files(userID):
+def list_files(user_id):
     """
         Nombre: list_files
         Descripcion: Lista todos los ficheros pertenecientes al usuario.
@@ -175,8 +178,8 @@ def list_files(userID):
     """
     # Enviamos la peticion a la API
     url = urlIni + "list"
-    args = {'userID': userID}
-    print("Buscando ficheros del usuario #{} en el servidor".format(userID), end="")
+    args = {'userID': user_id}
+    print("Buscando ficheros del usuario #{} en el servidor".format(user_id), end="")
     try:
         r = requests.post(url, headers=headers, json=args)
     except requests.ConnectionError:
@@ -189,11 +192,10 @@ def list_files(userID):
         answers = r.json()
         files_list = answers.get('files_list')
         num_files = answers.get('num_files')
-        # TODO formato
         print("{} ficheros encontrados:".format(num_files))
         i = 0
         for file in files_list:
-            print("[{}] #{}".format(i, file))
+            print("[{}] ID#{} {}".format(i, file.get('fileID'), file.get('fileName')))
             i += 1
     else:
         print()
@@ -201,12 +203,7 @@ def list_files(userID):
 
 
 def prueba_files():
-    #upload('383336', 'Prueba.txt')
-    #delete('De29fbC4')
+    # upload('383336', 'Prueba.txt')
+    # delete('De29fbC4')
     list_files('383336')
     download('6edD0F29', '383336')
-    # download('50Be7ED8', '383336')
-    # list_files('383336')
-
-
-prueba_files()

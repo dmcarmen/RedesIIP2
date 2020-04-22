@@ -1,5 +1,7 @@
 import os
+
 token = ""
+
 
 def config_ini():
     global token
@@ -7,7 +9,7 @@ def config_ini():
         print("Error: no hay token")
         return -1
     file = open("token.txt", "r")
-    #TODO cuidado con \n
+    # TODO comentar todo
     token = file.read()[:-1]
 
 
@@ -16,4 +18,4 @@ def error(request):
     if "error_code" in json:
         print("Error {}: {} -> {}".format(json.get("http_error_code"), json.get("error_code"), json.get("description")))
     else:
-        print("Error {}".format(r.status_code))
+        print("Error {}".format(request.status_code))

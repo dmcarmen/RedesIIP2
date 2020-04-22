@@ -6,6 +6,7 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad, unpad
 from Cryptodome.Cipher import PKCS1_OAEP
 
+
 def encrypt(mensaje, clave_pub_r):
     """
         Nombre: encrypt
@@ -34,6 +35,7 @@ def encrypt(mensaje, clave_pub_r):
         sobre_digital = cipher.encrypt(clave_s)
         return iv + sobre_digital + mensaje_cifrado
     except ValueError:
+        print("Error al cifrar.")
         return None
 
 
@@ -56,9 +58,9 @@ def sign(mensaje):
         f.close()
 
         # sign puede generar ValueError y TypeError
-        firma_digital = pkcs1_15.new(clave_priv_e).sign(h)
-        return firma_digital
+        return pkcs1_15.new(clave_priv_e).sign(h)
     except (ValueError, TypeError):
+        print("Error al firmar.")
         return None
 
 
@@ -74,13 +76,10 @@ def enc_sign(mensaje, clave_pub_r):
     # Obtenemos la firma
     firma_digital = sign(mensaje)
     if firma_digital is None:
-        print("Error al firmar")
         return None
 
     # Ciframos la firma digital con el mensaje
-    mensaje_enc_sign = encrypt(firma_digital + mensaje, clave_pub_r)
-
-    return mensaje_enc_sign
+    return encrypt(firma_digital + mensaje, clave_pub_r)
 
 
 def decrypt(mensaje):
@@ -133,6 +132,7 @@ def check_sign(mensaje_descifrado, clave_pub_e):
     try:
         pkcs1_15.new(clave_pub_e).verify(h, firma_digital)
     except ValueError:
+        print("Error al verificar la firma digital.")
         return None
     print("OK")
     return mensaje_original
@@ -144,7 +144,6 @@ def prueba_crypto():
     f.write(new_key.export_key())
     f.close()
     public_key = new_key.publickey()
-    encriptado = enc_sign(("Hola mundo").encode('utf-8'), public_key)
+    encriptado = enc_sign("Hola mundo".encode('utf-8'), public_key)
     mensaje_descifrado = decrypt(encriptado)
     print(check_sign(mensaje_descifrado, public_key).decode("utf-8"))
-
