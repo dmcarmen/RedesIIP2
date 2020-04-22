@@ -18,6 +18,7 @@ def encrypt(mensaje, clave_pub_r):
             -clave_pub_r: clave publica del receptor.
         Retorno: IV + sobre digital + mensaje cifrado
     """
+    print("-> Encriptando el mensaje...", end = "")
     # Cifrado simétrico: AES con modo de encadenamiento CBC,
     # con IV de 16 bytes, y longitud de clave de 256 bits.
     # Generamos una clave de 256 bits = 32 bytes
@@ -33,6 +34,7 @@ def encrypt(mensaje, clave_pub_r):
     cipher = PKCS1_OAEP.new(clave_pub_r)
     try:
         sobre_digital = cipher.encrypt(clave_s)
+        print("OK")
         return iv + sobre_digital + mensaje_cifrado
     except ValueError:
         print("Error al cifrar.")
@@ -48,6 +50,7 @@ def sign(mensaje):
             -mensaje: mensaje a firmar.
         Retorno: firma
     """
+    print("-> Generando la firma...", end = "")
     # Hacemos hash256 del mensaje
     h = SHA256.new(mensaje)
     # Ciframos con PKCS 1.5 el hash con la clave privada del emisor
@@ -58,9 +61,11 @@ def sign(mensaje):
         f.close()
 
         # sign puede generar ValueError y TypeError
-        return pkcs1_15.new(clave_priv_e).sign(h)
+        firma = pkcs1_15.new(clave_priv_e).sign(h)
+        print("OK")
+        return firma
     except (ValueError, TypeError):
-        print("Error al firmar.")
+        print("\nError al firmar.")
         return None
 
 

@@ -1,8 +1,7 @@
 import requests
-from Crypto.PublicKey import RSA
+from Cryptodome.PublicKey import RSA
 import utils as u
 
-u.config_ini()
 headers = {'Authorization': "Bearer " + u.token}
 urlIni = 'https://tfg.eps.uam.es:8080/api/users/'
 
@@ -19,8 +18,9 @@ def create_id(nombre, email):
         Retorno: Ninguno
     """
     global urlIni, headers
+    print("Creando un id en el sistema...")
     # Creamos el par de claves
-    print("Generando par de claves RSA de 2048 bits...", end="")
+    print("-> Generando par de claves RSA de 2048 bits...", end="")
     key = RSA.generate(2048)
     public_key = key.publickey().export_key()
     print("OK")
@@ -128,7 +128,7 @@ def get_public_key(user_id):
     # Enviamos la peticion a la API
     url = urlIni + 'getPublicKey'
     args = {'userID': user_id}
-    print("Solicitando clave de la identidad #{}".format(user_id), end="")
+    print("-> Solicitando clave de la identidad #{}...".format(user_id), end="")
     try:
         r = requests.post(url, headers=headers, json=args)
     except requests.ConnectionError:

@@ -4,13 +4,12 @@ import os
 import users
 import crypto
 
-u.config_ini()
 headers = {'Authorization': "Bearer " + u.token}
 urlIni = 'https://tfg.eps.uam.es:8080/api/files/'
 path_archivos = "Archivos/"
 
 
-def upload(dest_id, file_path):
+def upload(file_path, dest_id):
     """
         Nombre: upload
         Descripcion: Envia un fichero a otro usuario.
@@ -37,19 +36,15 @@ def upload(dest_id, file_path):
         os.makedirs(basedir)
 
     # Conseguimos la clave publica de dest_id
-    print("Recuperando clave pública de ID {}...".format(dest_id), end="")
     clave_pub_r = users.get_public_key(dest_id)
     if clave_pub_r is None:
         print("Error al obtener la clave publica")
         return
-    print("OK")
 
     # Firmamos y ciframos el fichero
-    print("Firmando y cifrando el fichero...", end="")
     mensaje_enc_sign = crypto.enc_sign(mensaje, clave_pub_r)
     if mensaje_enc_sign is None:
         return
-    print("OK")
 
     # Guardamos el fichero encriptado y firmado
     f = open(path_archivo, "wb")
@@ -57,7 +52,7 @@ def upload(dest_id, file_path):
     f.close()
 
     # Enviamos la peticion a la API
-    print("Subiendo fichero a servidor...", end="")
+    print("-> Subiendo fichero a servidor...", end="")
     url = urlIni + "upload"
     files = {'ufile': open(path_archivo, "rb")}
     try:
@@ -111,18 +106,14 @@ def download(file_id, source_id):
             return
 
         # Recuperamos la clave publica del usuario y verificamos la firma
-        print("-> Recuperando clave pública de ID {}...".format(source_id))
         clave_pub_e = users.get_public_key(source_id)
         if clave_pub_e is None:
             print("Error al obtener la clave publica")
             return
-        print("OK")
 
-        print("-> Verificando firma...", end="")
         mensaje_original = crypto.check_sign(mensaje_descifrado, clave_pub_e)
         if mensaje_original is None:
             return
-        print("OK")
 
         # Hallamos el nombre del fichero
         aux = r.headers.get('content-disposition')
@@ -179,7 +170,7 @@ def list_files(user_id):
     # Enviamos la peticion a la API
     url = urlIni + "list"
     args = {'userID': user_id}
-    print("Buscando ficheros del usuario #{} en el servidor".format(user_id), end="")
+    print("Buscando ficheros del usuario #{} en el servidor...".format(user_id), end="")
     try:
         r = requests.post(url, headers=headers, json=args)
     except requests.ConnectionError:
@@ -195,8 +186,8 @@ def list_files(user_id):
         print("{} ficheros encontrados:".format(num_files))
         i = 0
         for file in files_list:
-            print("[{}] ID#{} {}".format(i, file.get('fileID'), file.get('fileName')))
             i += 1
+            print("[{}] ID#{} {}".format(i, file.get('fileID'), file.get('fileName')))
     else:
         print()
         u.error(r)
