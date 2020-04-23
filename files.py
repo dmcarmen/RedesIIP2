@@ -24,7 +24,12 @@ def upload(file_path, dest_id):
     print("Solicitando envio de fichero a SecureBox")
 
     # Abrimos el archivo y vemos donde guardar el cifrado y firmado temporalmente
-    f = open(file_path, "rb")
+    try:
+        f = open(file_path, "rb")
+    except FileNotFoundError:
+        print("El archivo no existe")
+        return
+
     mensaje = f.read()
     f.close()
     file_name = os.path.basename(file_path)

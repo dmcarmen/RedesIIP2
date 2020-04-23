@@ -91,42 +91,56 @@ if __name__ == "__main__":
             if args.dest_id:
                 publicKey = users.get_public_key(args.dest_id)
                 if publicKey is not None:
-                    f = open(args.encrypt, "rb")
-                    mensaje_cifrado = crypto.encrypt(f.read(), publicKey)
-                    f.close()
-                    if mensaje_cifrado is not None:
-                        file_name = os.path.basename(args.encrypt)
-                        f = open(u.path_archivos + "enc_" + file_name, "wb")
-                        f.write(mensaje_cifrado)
+                    try:
+                        f = open(args.encrypt, "rb")
+                        mensaje_cifrado = crypto.encrypt(f.read(), publicKey)
                         f.close()
+                        # Si se ha cifrado correctamente lo guardamos como: enc_ + nombre del fichero
+                        if mensaje_cifrado is not None:
+                            file_name = os.path.basename(args.encrypt)
+                            f = open(u.path_archivos + "enc_" + file_name, "wb")
+                            f.write(mensaje_cifrado)
+                            f.close()
+                    except FileNotFoundError:
+                        print("El archivo no existe")
             else:
                 print("--encrypt necesita --dest_id")
 
         # Firmamos un fichero y la guardamos en path_archivos
         elif args.sign:
-            f = open(args.sign, 'rb')
-            mensaje_firmado = crypto.sign(f.read())
-            f.close()
-            if mensaje_firmado is not None:
-                file_name = os.path.basename(args.sign)
-                f = open(u.path_archivos + "sign_" + file_name, "wb")
-                f.write(mensaje_firmado)
+            try:
+                f = open(args.sign, 'rb')
+                mensaje = f.read()
+                firma_digital = crypto.sign(mensaje)
                 f.close()
+                # Si se ha firmado correctamente guardamos la firma y el mensaje como: sign_ + nombre del fichero
+                if firma_digital is not None:
+                    file_name = os.path.basename(args.sign)
+                    f = open(u.path_archivos + "sign_" + file_name, "wb")
+                    f.write(firma_digital + mensaje)
+                    f.close()
+
+            except FileNotFoundError:
+                print("El archivo no existe")
 
         # Encripta y frima un archivo para un destinatario y lo guarda en path_archivos
         elif args.enc_sign:
             if args.dest_id:
-                f = open(args.enc_sign, 'rb')
-                mensaje = f.read()
-                f.close()
-                publicKey = users.get_public_key(args.dest_id)
-                if publicKey is not None:
-                    mensaje_enc_sign = crypto.enc_sign(mensaje, publicKey)
-                    if mensaje_enc_sign is not None:
-                        file_name = os.path.basename(args.enc_sign)
-                        f = open(u.path_archivos + "enc_sign_" + file_name, "wb")
-                        f.write(mensaje_enc_sign)
-                        f.close()
+                try:
+                    f = open(args.enc_sign, 'rb')
+                    mensaje = f.read()
+                    f.close()
+                    publicKey = users.get_public_key(args.dest_id)
+                    if publicKey is not None:
+                        mensaje_enc_sign = crypto.enc_sign(mensaje, publicKey)
+                        # Si se ha realizado correctamente lo guardarmos como: enc_sign_ + nombre del fichero
+                        if mensaje_enc_sign is not None:
+                            file_name = os.path.basename(args.enc_sign)
+                            f = open(u.path_archivos + "enc_sign_" + file_name, "wb")
+                            f.write(mensaje_enc_sign)
+                            f.close()
+                except FileNotFoundError:
+                    print("El archivo no existe")
             else:
                 print("--enc_sign necesita --dest_id")
 
@@ -134,23 +148,25 @@ if __name__ == "__main__":
         # dado en path_archivos
         elif args.dec_check:
             if args.source_id:
-                f = open(args.dec_check, 'rb')
-                mensaje = f.read()
-                f.close()
-                mensaje_descifrado = crypto.decrypt(mensaje)
-                publicKey = users.get_public_key(args.source_id)
-                if publicKey is not None:
-                    check = crypto.check_sign(mensaje_descifrado, publicKey)
-                    print("La firma es ", end = "")
-                    if check is None:
-                        print("incorrecta")
-                    else:
-                        print("correcta")
-                        file_name = os.path.basename(args.dec_check)
-                        f = open(u.path_archivos + "dec_check_" + file_name, "wb")
-                        f.write(check)
-                        f.close()
-
+                try:
+                    f = open(args.dec_check, 'rb')
+                    mensaje = f.read()
+                    f.close()
+                    mensaje_descifrado = crypto.decrypt(mensaje)
+                    publicKey = users.get_public_key(args.source_id)
+                    if publicKey is not None:
+                        check = crypto.check_sign(mensaje_descifrado, publicKey)
+                        print("La firma es ", end = "")
+                        if check is None:
+                            print("incorrecta")
+                        else:
+                            print("correcta")
+                            file_name = os.path.basename(args.dec_check)
+                            f = open(u.path_archivos + "dec_check_" + file_name, "wb")
+                            f.write(check)
+                            f.close()
+                except FileNotFoundError:
+                    print("El archivo no existe")
             else:
                 print("--dec_check necesita --source_id")
 

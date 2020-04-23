@@ -107,7 +107,11 @@ def decrypt(mensaje):
 
     # Obtenemos el sobre con OAEP
     cipher = PKCS1_OAEP.new(clave_priv_r)
-    clave_s = cipher.decrypt(sobre_digital)
+    try:
+        clave_s = cipher.decrypt(sobre_digital)
+    except ValueError:
+        print("Error: No es posible descifrar")
+        return None
 
     # Desciframos y quitamos el pad
     cipher = AES.new(clave_s, AES.MODE_CBC, iv)
