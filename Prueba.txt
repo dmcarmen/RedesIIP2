@@ -1,4 +1,0 @@
-Hola mundo
-curl --verbose -H "Authorization: Bearer b7Bd104F6cE5faCD" -F "ufile=@/home/kali/Desktop/practica2/Prueba.txt" https://tfg.eps.uam.es:8080/api/files/upload
-23014Bfb
-curl --verbose -H "Authorization: Bearer b7Bd104F6cE5faCD" -H "Content-Type: application/json" --data '{"file_id": "23014Bfb"}' -X POST https://tfg.eps.uam.es:8080/api/files/download

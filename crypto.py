@@ -18,7 +18,7 @@ def encrypt(mensaje, clave_pub_r):
             -clave_pub_r: clave publica del receptor.
         Retorno: IV + sobre digital + mensaje cifrado
     """
-    print("-> Encriptando el mensaje...", end = "")
+    print("-> Encriptando el mensaje...", end="")
     # Cifrado simétrico: AES con modo de encadenamiento CBC,
     # con IV de 16 bytes, y longitud de clave de 256 bits.
     # Generamos una clave de 256 bits = 32 bytes
@@ -50,7 +50,7 @@ def sign(mensaje):
             -mensaje: mensaje a firmar.
         Retorno: firma
     """
-    print("-> Generando la firma...", end = "")
+    print("-> Generando la firma...", end="")
     # Hacemos hash256 del mensaje
     h = SHA256.new(mensaje)
     # Ciframos con PKCS 1.5 el hash con la clave privada del emisor

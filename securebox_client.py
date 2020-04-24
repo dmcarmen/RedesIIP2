@@ -25,8 +25,8 @@ if __name__ == "__main__":
                             nargs=2, metavar=('Nombre', 'Email'))
 
         parser.add_argument('--search_id',
-                            help='Busca un usuario cuyo nombre o correo electrónico contenga cadena en el repositorio de '
-                                 'identidades de SecureBox, y devuelve su ID',
+                            help='Busca un usuario cuyo nombre o correo electrónico contenga cadena en el repositorio '
+                                 'de identidades de SecureBox, y devuelve su ID',
                             metavar='Nombre/Email')
 
         parser.add_argument('--delete_id', help='Borra la identidad con ID id registrada en el sistema', metavar='id')
@@ -39,7 +39,8 @@ if __name__ == "__main__":
 
         parser.add_argument('--dest_id', help='ID del receptor del fichero', metavar='id_receptor')
 
-        parser.add_argument('--list_files', action='store_true', help='Lista todos los ficheros pertenecientes al usuario')
+        parser.add_argument('--list_files', action='store_true', help='Lista todos los ficheros pertenecientes al '
+                                                                      'usuario')
 
         parser.add_argument('--download', help='Recupera un fichero con ID id_fichero del sistema', metavar='id_fichero')
 
