@@ -3,7 +3,7 @@ Iris Álvarez Nieto y Carmen Díez Menéndez. Pareja 3.
 
 ## Decisiones de diseño y funcionamiento
 
-Se incluyen en la [Wiki](/wikis/home).
+Se incluyen en la [Wiki](../../wikis/home).
 
 ## Instrucciones para realizar la prueba
 
