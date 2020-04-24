@@ -5,9 +5,13 @@ import crypto
 import utils as u
 import os
 
-# TODO que a iris le funcione create_id
 
 if __name__ == "__main__":
+    # Guardamos el token, el header para todas las peticiones y el path de archivos
+    # Estas variables están en utils
+    u.config_ini()
+    u.headers['Authorization'] = "Bearer " + u.token
+
     # Si el token existe continuamos
     if u.token != "":
 

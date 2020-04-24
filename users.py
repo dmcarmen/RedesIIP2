@@ -2,7 +2,6 @@ import requests
 from Cryptodome.PublicKey import RSA
 import utils as u
 
-headers = {'Authorization': "Bearer " + u.token}
 urlIni = 'https://tfg.eps.uam.es:8080/api/users/'
 
 
@@ -17,7 +16,6 @@ def create_id(nombre, email):
             -email: email del usuario.
         Retorno: Ninguno
     """
-    global urlIni, headers
     print("Creando un id en el sistema...")
     # Creamos el par de claves
     print("-> Generando par de claves RSA de 2048 bits...", end="")
@@ -29,7 +27,7 @@ def create_id(nombre, email):
     url = urlIni + 'register'
     args = {'nombre': nombre, 'email': email, 'publicKey': public_key}
     try:
-        r = requests.post(url, headers=headers, json=args)
+        r = requests.post(url, headers=u.headers, json=args)
     except requests.ConnectionError:
         print("Error de conexion")
         return
@@ -57,14 +55,13 @@ def search_id(data_search):
             -data_search: cadena a buscar.
         Retorno: Ninguno
     """
-    global urlIni, headers
 
     # Enviamos la peticion a la API
     url = urlIni + 'search'
     args = {'data_search': data_search}
     print("Buscando usuario '" + data_search + "' en el servidor...", end="")
     try:
-        r = requests.post(url, headers=headers, json=args)
+        r = requests.post(url, headers=u.headers, json=args)
     except requests.ConnectionError:
         print("\nError de conexion")
         return
@@ -91,14 +88,13 @@ def delete_id(user_id):
             -userID: ID a borrar.
         Retorno: Ninguno
     """
-    global urlIni, headers
 
     # Envia la peticion a la API
     url = urlIni + 'delete'
     args = {'userID': user_id}
     print("Solicitando borrado de la identidad #{}...".format(user_id), end="")
     try:
-        r = requests.post(url, headers=headers, json=args)
+        r = requests.post(url, headers=u.headers, json=args)
     except requests.ConnectionError:
         print("\nError de conexion")
         return
@@ -123,14 +119,13 @@ def get_public_key(user_id):
             -userID: ID a borrar.
         Retorno: la clave publica o None en caso de error.
     """
-    global urlIni, headers
 
     # Enviamos la peticion a la API
     url = urlIni + 'getPublicKey'
     args = {'userID': user_id}
     print("-> Solicitando clave de la identidad #{}...".format(user_id), end="")
     try:
-        r = requests.post(url, headers=headers, json=args)
+        r = requests.post(url, headers=u.headers, json=args)
     except requests.ConnectionError:
         print("\nError de conexion")
         return None

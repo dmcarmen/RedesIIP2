@@ -4,7 +4,6 @@ import os
 import users
 import crypto
 
-headers = {'Authorization': "Bearer " + u.token}
 urlIni = 'https://tfg.eps.uam.es:8080/api/files/'
 
 
@@ -56,7 +55,7 @@ def upload(file_path, dest_id):
     url = urlIni + "upload"
     files = {'ufile': open(path_archivo, "rb")}
     try:
-        r = requests.post(url, headers=headers, files=files)
+        r = requests.post(url, headers=u.headers, files=files)
     except requests.ConnectionError:
         print("\nError de conexion")
         return
@@ -91,7 +90,7 @@ def download(file_id, source_id):
     url = urlIni + "download"
     args = {'file_id': file_id}
     try:
-        r = requests.post(url, headers=headers, json=args)
+        r = requests.post(url, headers=u.headers, json=args)
     except requests.ConnectionError:
         print("Error de conexion")
         return
@@ -144,7 +143,7 @@ def delete(file_id):
     args = {'file_id': file_id}
     print("Solicitando borrado del fichero #{}...".format(file_id), end="")
     try:
-        r = requests.post(url, headers=headers, json=args)
+        r = requests.post(url, headers=u.headers, json=args)
     except requests.ConnectionError:
         print("\nError de conexion")
         return
@@ -173,7 +172,7 @@ def list_files(user_id):
     args = {'userID': user_id}
     print("Buscando ficheros del usuario #{} en el servidor...".format(user_id), end="")
     try:
-        r = requests.post(url, headers=headers, json=args)
+        r = requests.post(url, headers=u.headers, json=args)
     except requests.ConnectionError:
         print("\nError de conexion")
         return

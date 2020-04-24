@@ -4,6 +4,7 @@ import configparser
 # Variables globales
 token = ""
 path_archivos = ""
+headers = {}
 
 
 def config_ini():
@@ -35,8 +36,6 @@ def config_ini():
     if not os.path.exists(basedir):
         os.makedirs(basedir)
 
-# Guardamos el token y el path de archivos
-config_ini()
 
 def error(request):
     """
