@@ -158,21 +158,19 @@ def delete(file_id):
         u.error(r)
 
 
-def list_files(user_id):
+def list_files():
     """
         Nombre: list_files
         Descripcion: Lista todos los ficheros pertenecientes al usuario.
             En caso de error lo imprime por pantalla y sale de la funcion.
-        Argumentos:
-            -userID: ID del fichero en el sistema.
+        Argumentos: Ninguno
         Retorno: Ninguno
     """
     # Enviamos la peticion a la API
     url = urlIni + "list"
-    args = {'userID': user_id}
-    print("Buscando ficheros del usuario #{} en el servidor...".format(user_id), end="")
+    print("Buscando ficheros del usuario en el servidor...", end="")
     try:
-        r = requests.post(url, headers=u.headers, json=args)
+        r = requests.post(url, headers=u.headers)
     except requests.ConnectionError:
         print("\nError de conexion")
         return

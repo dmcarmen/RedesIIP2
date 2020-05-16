@@ -76,10 +76,7 @@ if __name__ == "__main__":
                 print("--upload necesita --dest_id")
 
         elif args.list_files:
-            if args.source_id:
-                files.list_files(args.source_id)
-            else:
-                print("--list_files necesita --source_id")
+            files.list_files()
 
         elif args.download:
             if args.source_id:
