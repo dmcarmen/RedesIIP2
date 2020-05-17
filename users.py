@@ -2,8 +2,6 @@ import requests
 from Cryptodome.PublicKey import RSA
 import utils as u
 
-urlIni = 'https://tfg.eps.uam.es:8080/api/users/'
-
 
 def create_id(nombre, email):
     """
@@ -24,7 +22,7 @@ def create_id(nombre, email):
     print("OK")
 
     # Enviamos la peticion a la API
-    url = urlIni + 'register'
+    url = u.url_users + 'register'
     args = {'nombre': nombre, 'email': email, 'publicKey': public_key}
     try:
         r = requests.post(url, headers=u.headers, json=args)
@@ -57,7 +55,7 @@ def search_id(data_search):
     """
 
     # Enviamos la peticion a la API
-    url = urlIni + 'search'
+    url = u.url_users + 'search'
     args = {'data_search': data_search}
     print("Buscando usuario '" + data_search + "' en el servidor...", end="")
     try:
@@ -90,7 +88,7 @@ def delete_id(user_id):
     """
 
     # Envia la peticion a la API
-    url = urlIni + 'delete'
+    url = u.url_users + 'delete'
     args = {'userID': user_id}
     print("Solicitando borrado de la identidad #{}...".format(user_id), end="")
     try:
@@ -121,7 +119,7 @@ def get_public_key(user_id):
     """
 
     # Enviamos la peticion a la API
-    url = urlIni + 'getPublicKey'
+    url = u.url_users + 'getPublicKey'
     args = {'userID': user_id}
     print("-> Solicitando clave de la identidad #{}...".format(user_id), end="")
     try:

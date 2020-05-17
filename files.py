@@ -4,8 +4,6 @@ import os
 import users
 import crypto
 
-urlIni = 'https://tfg.eps.uam.es:8080/api/files/'
-
 
 def upload(file_path, dest_id):
     """
@@ -52,7 +50,7 @@ def upload(file_path, dest_id):
 
     # Enviamos la peticion a la API
     print("-> Subiendo fichero a servidor...", end="")
-    url = urlIni + "upload"
+    url = u.url_files + "upload"
     files = {'ufile': open(path_archivo, "rb")}
     try:
         r = requests.post(url, headers=u.headers, files=files)
@@ -87,7 +85,7 @@ def download(file_id, source_id):
     print("Descargando fichero de SecureBox...", end="")
 
     # Enviamos la peticion a la API
-    url = urlIni + "download"
+    url = u.url_files + "download"
     args = {'file_id': file_id}
     try:
         r = requests.post(url, headers=u.headers, json=args)
@@ -139,7 +137,7 @@ def delete(file_id):
         Retorno: Ninguno
     """
     # Enviamos la peticion a la API
-    url = urlIni + "delete"
+    url = u.url_files + "delete"
     args = {'file_id': file_id}
     print("Solicitando borrado del fichero #{}...".format(file_id), end="")
     try:
@@ -167,7 +165,7 @@ def list_files():
         Retorno: Ninguno
     """
     # Enviamos la peticion a la API
-    url = urlIni + "list"
+    url = u.url_files + "list"
     print("Buscando ficheros del usuario en el servidor...", end="")
     try:
         r = requests.post(url, headers=u.headers)
@@ -194,5 +192,5 @@ def list_files():
 def prueba_files():
     # upload('383336', 'Prueba.txt')
     # delete('De29fbC4')
-    list_files('383336')
+    list_files()
     download('6edD0F29', '383336')

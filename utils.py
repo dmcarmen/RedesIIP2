@@ -1,13 +1,17 @@
 import os
 import configparser
+from Cryptodome.Cipher import AES
+from Cryptodome.Util.Padding import pad, unpad
 
 # Variables globales
 token = ""
 path_archivos = ""
+url_users = ""
+url_files = ""
 headers = {}
 
 
-def config_ini():
+def config_ini(password, iv):
     """
         Nombre: config_ini
         Descripcion: Realiza la configuración inicial necesaria.
@@ -15,11 +19,17 @@ def config_ini():
         Argumentos: Ninguno
         Retorno: Ninguno
     """
-    global token, path_archivos
+    global token, path_archivos, url_users, url_files
+
+    f = open('ini.conf', 'rb')
+    encriptado = f.read()
+    cipher = AES.new(pad(password.encode('utf-8'), 32), AES.MODE_CBC, iv)
+    contenido = unpad(cipher.decrypt(encriptado), AES.block_size)
+    f.close()
 
     # Leemos token.txt y lo guardamos en la variable global token
     config = configparser.ConfigParser()
-    config.read('ini.conf')
+    config.read_string(contenido.decode('utf-8'))
     if 'token' in config['DEFAULT']:
         token = config['DEFAULT']['token']
     else:
@@ -30,6 +40,17 @@ def config_ini():
         path_archivos = config['DEFAULT']['path_archivos']
     else:
         path_archivos = "Archivos/"
+
+    # Guardamos los endpoints de la API
+    if 'url_users' in config['DEFAULT']:
+        url_users = config['DEFAULT']['url_users']
+    else:
+        return
+
+    if 'url_files' in config['DEFAULT']:
+        url_files = config['DEFAULT']['url_files']
+    else:
+        return
 
     # Si no existe path_archivos creamos la carpeta
     basedir = os.path.dirname(path_archivos)

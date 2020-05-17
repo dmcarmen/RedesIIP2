@@ -4,12 +4,50 @@ import users
 import crypto
 import utils as u
 import os
-
+import sys
+import getpass
+from Cryptodome.Cipher import AES
+from Cryptodome.Random import get_random_bytes
+from Cryptodome.Hash import SHA256
+from Cryptodome.Util.Padding import pad
 
 if __name__ == "__main__":
+    # Pedimos una contraseña si es la primera vez que se ejecuta securebox,
+    # es decir, no existe fichero de hash con la contraseña
+    password = getpass.getpass(prompt="Introduce tu contraseña: ")
+    if not os.path.exists("hash.txt"):
+        f = open("hash.txt", "wb")
+        b_password = pad(password.encode('utf-8'), 32)
+        iv = get_random_bytes(16)
+
+        cipher = AES.new(b_password, AES.MODE_CBC, iv)
+        f.write(iv + SHA256.new(b_password).digest())
+        f.close()
+
+        f = open("ini.conf", "rb+")
+        config = f.read()
+        f.truncate(0)
+        f.close()
+
+        encriptado = cipher.encrypt(pad(config, AES.block_size))
+
+        f = open("ini.conf", "wb")
+        f.write(encriptado)
+        f.close()
+    else:
+        f = open("hash.txt", "rb")
+        contenido = f.read()
+        iv = contenido[0:16]
+        h = contenido[16:]
+        hash_password = SHA256.new(pad(password.encode('utf-8'), 32)).digest()
+
+        if h != hash_password:
+            print("Contraseña incorrecta.")
+            sys.exit(0)
+
     # Guardamos el token, el header para todas las peticiones y el path de archivos
     # Estas variables están en utils
-    u.config_ini()
+    u.config_ini(password, iv)
     u.headers['Authorization'] = "Bearer " + u.token
 
     # Si el token existe continuamos
@@ -42,7 +80,8 @@ if __name__ == "__main__":
         parser.add_argument('--list_files', action='store_true', help='Lista todos los ficheros pertenecientes al '
                                                                       'usuario')
 
-        parser.add_argument('--download', help='Recupera un fichero con ID id_fichero del sistema', metavar='id_fichero')
+        parser.add_argument('--download', help='Recupera un fichero con ID id_fichero del sistema',
+                            metavar='id_fichero')
 
         parser.add_argument('--delete_file', help='Borra un fichero del sistema', metavar='id_fichero')
 
@@ -55,7 +94,8 @@ if __name__ == "__main__":
 
         parser.add_argument('--enc_sign', help='Cifra y firma un fichero para --dest_id', metavar='fichero')
 
-        parser.add_argument('--dec_check', help='Desencripta y valida la firma de un fichero de --source_id', metavar='fichero')
+        parser.add_argument('--dec_check', help='Desencripta y valida la firma de un fichero de --source_id',
+                            metavar='fichero')
 
         args = parser.parse_args()
 
@@ -158,7 +198,7 @@ if __name__ == "__main__":
                     publicKey = users.get_public_key(args.source_id)
                     if publicKey is not None:
                         check = crypto.check_sign(mensaje_descifrado, publicKey)
-                        print("La firma es ", end = "")
+                        print("La firma es ", end="")
                         if check is None:
                             print("incorrecta")
                         else:
